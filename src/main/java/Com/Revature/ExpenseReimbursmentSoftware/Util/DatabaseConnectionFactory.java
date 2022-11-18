@@ -7,11 +7,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import static java.lang.Class.forName;
+
 public class DatabaseConnectionFactory {
 
     private static final DatabaseConnectionFactory databaseConnectionFactory = new DatabaseConnectionFactory();
 
-    private static Properties properties = new Properties();
+    private Properties properties = new Properties();
 
 
     public DatabaseConnectionFactory() {
@@ -25,18 +27,19 @@ public class DatabaseConnectionFactory {
     //Specify to the DriverManager which JDBC drivers to try to make Connections and loading drivers using forName() method.
     static {
         try {
-            Class.forName("org.postgres.driver");
+            forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     public static DatabaseConnectionFactory getDatabaseConnectionFactory() {
+
         return databaseConnectionFactory;
     }
 
     //To get connection object and registering drivers using DriverManager
-    public static Connection getConnection() {
+    public Connection getConnection() {
             try {
                 Connection connection = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("username"), properties.getProperty("password"));
                 return connection;

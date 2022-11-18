@@ -10,7 +10,7 @@ public interface CrudOperation<T> {
 
     //Read
     List<T> getAll();
-    T getById();
+    T getById(String getObjectById);
 
     //Update
     boolean updated(T updatedObject);

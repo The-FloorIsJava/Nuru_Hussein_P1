@@ -1,14 +1,16 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class Employee {
     private String username;
-    private String role;
+    private Role role;
+   // @JsonAlias(value = {"pass", "pasWORD"})
     private String password;
 public Employee() {
-
+    this.role = Role.Employee;
 }
-
-    public Employee(String username, String role, String password) {
+    public Employee(String username, Role role, String password) {
         this.username = username;
         this.role = role;
         this.password = password;
@@ -22,11 +24,11 @@ public Employee() {
         return username;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 

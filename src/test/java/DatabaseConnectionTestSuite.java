@@ -14,7 +14,6 @@ public class DatabaseConnectionTestSuite {
             Assert.assertNotNull(connection);
         } catch (SQLException e) {
             e.printStackTrace();
-
         }
     }
 }
