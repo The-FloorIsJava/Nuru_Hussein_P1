@@ -18,7 +18,7 @@ public class EmployeeDAO implements CrudOperation<Employee, String> {
     public Employee create(Employee newEmployee) {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
-            String sql = "insert into users_login(employee_username, employee_role, employee_password)" + "values(?, ?::user_role,?)";
+            String sql = "insert into users_login(employee_username, employee_role, employee_password)" + "values(?,?::user_role,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, newEmployee.getUsername());
             preparedStatement.setString(2, newEmployee.getRole().toString());
@@ -111,7 +111,7 @@ public class EmployeeDAO implements CrudOperation<Employee, String> {
     public Employee loginCheck(String employeeUsername, String employeePassword) {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
-            String sql = "select * from users_login where employee_username = ? and employee_password = ?;";
+            String sql = "select * from users_login where employee_username = ? and employee_password = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
             preparedStatement.setString(1,employeeUsername);

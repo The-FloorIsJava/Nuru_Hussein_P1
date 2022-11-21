@@ -18,7 +18,6 @@ public class EmployeeService {
 
     }
     public EmployeeService(EmployeeDAO employeeDAO) {
-
         this.employeeDAO = employeeDAO;
     }
 
@@ -38,16 +37,15 @@ public class EmployeeService {
          return this.employeeDAO.getAll();
 
   }
-  public Employee getEmployeeByUsername(String getObjectById) {
-       // return this.employeeDAO.getByField(getObjectById);
-    return  null;
+  public Employee getEmployeeByUsername( String getObjectById) {
+        return this.employeeDAO.getByField(sessionEmployee.getUsername(),getObjectById);
+   // return  null;
   }
 
   public Employee getSessionEmployee() {
         return this.sessionEmployee;
   }
   public void logout(){
-
         this.sessionEmployee = null;
     }
 

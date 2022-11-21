@@ -4,7 +4,6 @@ import java.util.Objects;
 
 public class Disbursement {
     private int id;  // Serial primary key;
-   private Employee employee;
     private String employeeId;
     private double amount;
     private String description;
@@ -13,17 +12,14 @@ public class Disbursement {
   public Disbursement() {
 
   }
-    public Disbursement(int id, String employeeId, Employee employee,  double amount, String description, RequestStatus requestStatus) {
+    public Disbursement(int id, String employeeId,  double amount, String description, RequestStatus requestStatus) {
         this.id = id;
         this.employeeId = employeeId;
-        this.employee = employee;
         this.amount = amount;
         this.description = description;
         this.requestStatus = RequestStatus.Pending;
 
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be greater zero");
-        }
+
         this.amount = amount;
     }
 
@@ -33,10 +29,6 @@ public class Disbursement {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Employee getEmployee() {
-        return employee;
     }
 
     public String getEmployeeId() {
@@ -52,7 +44,11 @@ public class Disbursement {
     }
 
     public void setAmount(double amount) {
-        this.amount = amount;
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater zero");
+        }
+      this.amount = amount;
     }
 
     public String getDescription() {

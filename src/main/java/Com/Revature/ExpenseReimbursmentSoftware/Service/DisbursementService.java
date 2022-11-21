@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class DisbursementService {
-  List<Disbursement> disbursementList;
-    DisbursementDAO disbursementDAO;
- private int countRequest = 0;
-
-public  DisbursementService() {
-    disbursementList = new ArrayList<>();
-}
+//  List<Disbursement> disbursementList;
+//    DisbursementDAO disbursementDAO;
+// private int countRequest = 0;
+//
+//public  DisbursementService() {
+//    disbursementList = new ArrayList<>();
+//}
+    private final DisbursementDAO disbursementDAO;
+    private int countRequest = 0;
  public DisbursementService(DisbursementDAO disbursementDAO) {
      this.disbursementDAO = disbursementDAO;
      this.startRequestCount();

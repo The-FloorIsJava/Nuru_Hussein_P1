@@ -10,6 +10,7 @@ public class Employee  {
     private String password;
 
 public Employee() {
+
     this.role = Role.Employee;
 }
     public Employee(String username, String password) {

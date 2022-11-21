@@ -15,15 +15,16 @@ import java.util.List;
 
 public class DisbursementController {
 
-    DisbursementService disbursementService;
-    EmployeeService employeeService;
+  private final   DisbursementService disbursementService;
+  private final EmployeeService employeeService;
  Javalin app;
-    public DisbursementController(Javalin app) {
-      disbursementService = new DisbursementService();
-        this.app = app;
+
+    public DisbursementController(DisbursementService disbursementService, EmployeeService employeeService) {
+        this.disbursementService = disbursementService;
+        this.employeeService = employeeService;
     }
 
-    public void startJavalinAPIDisbursementEndPoint() {
+    public void startJavalinAPIDisbursementEndPoint(Javalin app) {
        // Javalin app = Javalin.create().start(8080);
         app.post("request/send", this::createDisbursementHandler);
         app.get("request/previous", this::getAllOldRequestHandler);
@@ -78,7 +79,7 @@ public class DisbursementController {
         ObjectMapper objectMapper = new ObjectMapper();
         Disbursement request = objectMapper.readValue(context.body(), Disbursement.class);
         if(this.disbursementService.sendRequest(request, employee) == null) context.json("Failed to submit request!");
-        else context.json(String.format("The request number #%id submitted successfully!", request.getId()));
+        else context.json(String.format("request number  submitted successfully!", request.getId()));
     }
 
 }

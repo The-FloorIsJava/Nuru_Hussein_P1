@@ -15,22 +15,15 @@ import java.util.List;
 
 public class EmployeeController {
 
+ private final  EmployeeService employeeService;
 
-  // private final EmployeeService employeeService;
-
-//    public EmployeeController(EmployeeService employeeService) {
-//        this.employeeService = new EmployeeService(new EmployeeDAO());
-//    }
-  EmployeeService employeeService;
-  Javalin app;
-     /*
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+    /*
      * Javalin app initialized to create endpoint
      * */
-    public EmployeeController(Javalin app) {
-         employeeService = new EmployeeService(new EmployeeDAO());
-        this.app = app;
-    }
-    public void startJavalinAPIEmployeeEndPoint() {
+    public void startJavalinAPIEmployeeEndPoint(Javalin app) {
         //Javalin app = Javalin.create().start(8080);
         app.get("test", this::testerHandler);
         app.post("employee", this::createEmployeeHandler);
@@ -38,7 +31,6 @@ public class EmployeeController {
         app.get("employee/{name}", this::getEmployeeByUsername);
         app.post("login", this::loginInCheckHandler);
         app.delete("logout", this::logoutHandler);
-        app.post("submitRequest", this::createDisbursementHandler);
     }
 
     private void logoutHandler(Context context) {
@@ -55,9 +47,9 @@ public class EmployeeController {
 
     private void getEmployeeByUsername(Context context) throws JsonProcessingException {
      String name = context.pathParam("name");
-     Employee employee = employeeService.getEmployeeByUsername(name);
-     context.json(employee);
-
+     Employee employee;
+        employee = employeeService.getEmployeeByUsername(name);
+        context.json(employee);
     }
 
     private void getAllEmployeesHandler(Context context) {
@@ -69,7 +61,7 @@ public class EmployeeController {
     private void testerHandler(Context context) {
         context.result("This test was Successful!!!");
     }
-    private void createEmployeeHandler(Context context) throws JsonProcessingException, SQLIntegrityConstraintViolationException {
+    private void createEmployeeHandler(Context context) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         Employee employee = objectMapper.readValue(context.body(), Employee.class);
         employeeService.createEmployee(employee);
@@ -85,21 +77,4 @@ public class EmployeeController {
         if(this.employeeService.login(loginCredentials) == null) context.json(String.format("%s login was not successful. Check your credential or log out to log in!", loginCredentials.getEmployeeUsername()));
          else context.json(String.format("%s successfully logged in!", loginCredentials.getEmployeeUsername()));
     }
-    private void createDisbursementHandler(Context context) throws JsonProcessingException {
-        Employee employee = this.employeeService.getSessionEmployee();
-        if(employee == null)  {
-            context.json("Please, log in to send your request!");
-            return;
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        Disbursement request = objectMapper.readValue(context.body(), Disbursement.class);
-        //if(this.employeeService.submitRequest(request) == null) context.json("Failed to submit request!");
-        context.json(String.format("The request number  submitted successfully!", request.getId()));
-    }
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        Disbursement disbursement = objectMapper.readValue(context.body(), Disbursement.class);
-//        employeeService.submitRequest(disbursement);
-//        context.json(disbursement);
-//    }
 }

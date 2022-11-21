@@ -19,13 +19,12 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
     @Override
     public Disbursement create(Disbursement newDisbursement) {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
-        String sql = "insert into reimbursement_ticket(employeeId, amount, description,status) values(?,?,?,?::request_status)";
+        String sql = "insert into reimbursement_ticket(employee_id, amount, description) values(?,?,?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(2, newDisbursement.getEmployeeId());
-        preparedStatement.setDouble(3,newDisbursement.getAmount());
-        preparedStatement.setString(4, newDisbursement.getDescription());
-        preparedStatement.setString(5, newDisbursement.getRequestStatus().toString());
+        preparedStatement.setString(1, newDisbursement.getEmployeeId());
+        preparedStatement.setDouble(2,newDisbursement.getAmount());
+        preparedStatement.setString(3, newDisbursement.getDescription());
         int checkNewDisbursement = preparedStatement.executeUpdate();
 
         if (checkNewDisbursement == 0) {
@@ -50,8 +49,8 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
 
             List<Disbursement> employeeRequests = new LinkedList<>();
 
-            String sql = "SELECT * FROM reimbursement_ticket WHERE employee_username = ? order By" +
-                    "reimbursement_ticket.id";
+            String sql = "SELECT * FROM reimbursement_ticket WHERE employee_id = ? " +
+                    "order By reimbursement_ticket.id";
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, employee.getUsername());
@@ -59,7 +58,7 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                employeeRequests.add(convertSQLResultToDisbursementRequest(resultSet, employee));
+                employeeRequests.add(convertSQLResultToDisbursementRequest(resultSet));
             }
 
             return employeeRequests;
@@ -123,7 +122,7 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while(!resultSet.next()) {
-                pendingRequests.add(convertSQLResultToDisbursementRequest(resultSet, null));
+                pendingRequests.add(convertSQLResultToDisbursementRequest(resultSet));
             }
             return pendingRequests;
 
@@ -150,15 +149,15 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
             return null;
         }
    }
-    private Disbursement convertSQLResultToDisbursementRequest(ResultSet resultSet, Employee employee) throws SQLException {
+    private Disbursement convertSQLResultToDisbursementRequest(ResultSet resultSet) throws SQLException {
 
         Disbursement request = new Disbursement();
-        if (employee == null) {
-            employee = new Employee();
-                    employee.setUsername(resultSet.getString("employee_username"));
-                    employee.setRole(Role.valueOf(resultSet.getString("employee_role")));
-                    employee.setPassword(resultSet.getString("employee_password"));
-        }
+//        if (employee == null) {
+//            employee = new Employee();
+//                    employee.setUsername(resultSet.getString("employee_username"));
+//                    employee.setRole(Role.valueOf(resultSet.getString("employee_role")));
+//                    employee.setPassword(resultSet.getString("employee_password"));
+//        }
 
         request.setId(resultSet.getInt("id"));
         request.setEmployeeId(resultSet.getString("employee_id"));

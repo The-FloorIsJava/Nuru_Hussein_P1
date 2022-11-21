@@ -9,8 +9,15 @@ import io.javalin.Javalin;
 public class Application {
 
     public static void main(String[] args) {
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        DisbursementDAO disbursementDAO = new DisbursementDAO();
+        EmployeeService employeeService = new EmployeeService(employeeDAO);
+        DisbursementService disbursementService = new DisbursementService(disbursementDAO);
+
+        EmployeeController employeeController = new EmployeeController(employeeService);
+        DisbursementController disbursementController  = new DisbursementController(disbursementService, employeeService);
         Javalin app = Javalin.create().start(8080);
-       new EmployeeController(app).startJavalinAPIEmployeeEndPoint();
-       new DisbursementController(app).startJavalinAPIDisbursementEndPoint();
+       employeeController.startJavalinAPIEmployeeEndPoint(app);
+       disbursementController.startJavalinAPIDisbursementEndPoint(app);
     }
 }
