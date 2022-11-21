@@ -1,56 +1,74 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Service;
 
+import Com.Revature.ExpenseReimbursmentSoftware.DAO.DisbursementDAO;
 import Com.Revature.ExpenseReimbursmentSoftware.DAO.EmployeeDAO;
+import Com.Revature.ExpenseReimbursmentSoftware.Model.Disbursement;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
+import Com.Revature.ExpenseReimbursmentSoftware.Model.RequestStatus;
+import Com.Revature.ExpenseReimbursmentSoftware.Model.Role;
+import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.LoginCredentials;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeService {
 
-   private static Employee sessionEmployee = null;
+    private Employee sessionEmployee = null;
     private EmployeeDAO employeeDAO;
+    public EmployeeService() {
 
+    }
     public EmployeeService(EmployeeDAO employeeDAO) {
 
         this.employeeDAO = employeeDAO;
     }
 
-//  public  static EmployeeService getEmployeeService() {
-//        instance = instance ==null ? new EmployeeService() : instance;
-//        return instance;
-//  }
-
     //Method overloaded
-    public Employee createEmployee(Employee employee) {
-        return employeeDAO.create(employee);
+    public Employee createEmployee(Employee employee)  {
+        return this.employeeDAO.create(employee);
     }
-    public void login(String userName, String password){
+
+    //It takes user input and compare it with information in SQL-- You cant by-pass if you are not a member
+    public Employee login(LoginCredentials loginCredentials){
         // TODO: IMPLEMENT ME WITH DAO
-        sessionEmployee = employeeDAO.loginCheck(userName, password);
+        if (this.sessionEmployee != null) return null;
+        this.sessionEmployee = this.employeeDAO.loginCheck(loginCredentials.getEmployeeUsername(), loginCredentials.getEmployeePassword());
+        return this.sessionEmployee;
     }
   public List<Employee> getAllEmployees() {
          return this.employeeDAO.getAll();
+
   }
   public Employee getEmployeeByUsername(String getObjectById) {
-       return this.employeeDAO.getById(getObjectById);
+       // return this.employeeDAO.getByField(getObjectById);
+    return  null;
   }
-    public void logout(){
 
-        sessionEmployee = null;
+  public Employee getSessionEmployee() {
+        return this.sessionEmployee;
+  }
+  public void logout(){
+
+        this.sessionEmployee = null;
     }
 
-    public Employee getSessionCustomer(){
 
-        return sessionEmployee;
-    }
-    List<Employee> employeeList;
+    // You can approve request only and only if you are a manager
+  public boolean checkIfAManagerToApprove() {
+        return (this.sessionEmployee ==null) || (this.sessionEmployee.getRole() != Role.Manager);
+  }
 
-    public EmployeeService() {
-        employeeList = new ArrayList<>();
-    }
-//   public void createEmployee(String username, String role, String password) {
-//      Employee newEmployee = new Employee(username, role, password);
-//      employeeList.add(newEmployee);
-//   }
+  public void submitRequest(Disbursement disbursement) {
+        Employee requestor = this.getSessionEmployee();
+        if (requestor == null) {
+            System.out.println("Log in to submit");
+        } else if (disbursement.getAmount() >= 0 && disbursement.getDescription() != null) {
+            disbursement.setRequestStatus(RequestStatus.Pending);
+            disbursement.setEmployeeId(disbursement.getEmployeeId());
+            DisbursementDAO disbursementDAO = new DisbursementDAO();
+            Disbursement newDisbursement = disbursementDAO.create(disbursement);
+        } else {
+            System.out.println("Every request must have amount greater than zero and description.");
+        }
+  }
+
 }

@@ -5,18 +5,15 @@ public class LoginCredentials  {
     private String employeeUsername;
     private String employeePassword;
 
+    public LoginCredentials() {
 
-//    public LoginCredentials(String employeeUsername, String employeePassword) {
-//        EmployeeUsername = employeeUsername;
-//        EmployeePassword = employeePassword;
-//    }
-
+    }
     public String getEmployeeUsername() {
         return employeeUsername;
     }
 
     public void setEmployeeUsername(String employeeUsername) {
-        employeeUsername = employeeUsername;
+        this.employeeUsername = employeeUsername;
     }
 
     public String getEmployeePassword() {
@@ -24,6 +21,6 @@ public class LoginCredentials  {
     }
 
     public void setEmployeePassword(String employeePassword) {
-        employeePassword = employeePassword;
+        this.employeePassword = employeePassword;
     }
 }

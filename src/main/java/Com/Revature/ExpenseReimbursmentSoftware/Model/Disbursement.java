@@ -1,19 +1,30 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Model;
 
+import java.util.Objects;
+
 public class Disbursement {
-    private int id;
+    private int id;  // Serial primary key;
+   private Employee employee;
     private String employeeId;
     private double amount;
     private String description;
-    private String status;
+    private RequestStatus requestStatus;
 
+  public Disbursement() {
 
-    public Disbursement(int id, String employeeId, double amount, String description, String status) {
+  }
+    public Disbursement(int id, String employeeId, Employee employee,  double amount, String description, RequestStatus requestStatus) {
         this.id = id;
         this.employeeId = employeeId;
+        this.employee = employee;
         this.amount = amount;
         this.description = description;
-        this.status = status;
+        this.requestStatus = RequestStatus.Pending;
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater zero");
+        }
+        this.amount = amount;
     }
 
     public int getId() {
@@ -22,6 +33,10 @@ public class Disbursement {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Employee getEmployee() {
+        return employee;
     }
 
     public String getEmployeeId() {
@@ -48,22 +63,27 @@ public class Disbursement {
         this.description = description;
     }
 
-    public String getStatus() {
-        return status;
+    public RequestStatus getRequestStatus() {
+        return requestStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setRequestStatus(RequestStatus requestStatus) {
+        this.requestStatus = requestStatus;
     }
 
     @Override
-    public String toString() {
-        return "Disbursement{" +
-                "id=" + id +
-                ", employeeId='" + employeeId + '\'' +
-                ", amount=" + amount +
-                ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Disbursement that = (Disbursement) o;
+        return id == that.id && Double.compare(that.amount, amount) == 0 && Objects.equals(employeeId, that.employeeId) && Objects.equals(description, that.description) && requestStatus == that.requestStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, employeeId, amount, description, requestStatus);
+    }
+
+    public void setEmployee(Employee employee) {
     }
 }

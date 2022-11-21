@@ -2,29 +2,23 @@ package Com.Revature.ExpenseReimbursmentSoftware.DAO;
 
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Role;
+import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.Exceptions.InvalidCustomerCredentialException;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DatabaseConnectionFactory;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.Interface.CrudOperation;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-public class EmployeeDAO implements CrudOperation<Employee> {
+public class EmployeeDAO implements CrudOperation<Employee, String> {
 
-   /* private static EmployeeDAO instance;
 
-    private EmployeeDAO() {
-
-    }
-
-    public static EmployeeDAO getEmployeeDAO() {
-        instance = instance == null ? new EmployeeDAO() : instance;
-        return instance;
-    } */
     @Override
     public Employee create(Employee newEmployee) {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
-            String sql = "insert into users_login(employeeUsername, employeeRole, employeePassword) values(?, ?::user_role,?)";
+
+            String sql = "insert into users_login(employee_username, employee_role, employee_password)" + "values(?, ?::user_role,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, newEmployee.getUsername());
             preparedStatement.setString(2, newEmployee.getRole().toString());
@@ -32,13 +26,14 @@ public class EmployeeDAO implements CrudOperation<Employee> {
 
             int checkInsert = preparedStatement.executeUpdate();
             if (checkInsert == 0) {
-
+                throw new RuntimeException("failed to insert employee to database");
             }
             return newEmployee;
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
+
     }
 
     @Override
@@ -47,12 +42,15 @@ public class EmployeeDAO implements CrudOperation<Employee> {
         try( Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
             List<Employee> employees = new ArrayList<>();
           // Select * employees from users_login table
+
             String sql = "SELECT * FROM users_login";
+
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(sql);
+            ResultSet resultSet = statement.executeQuery(sql);
+
         //traverse through employees
-            while(rs.next()) {
-                employees.add(convertInfoToEmployee(rs));
+            while(resultSet.next()) {
+                employees.add(convertInfoToEmployee(resultSet));
             }
             return employees;
 
@@ -63,25 +61,31 @@ public class EmployeeDAO implements CrudOperation<Employee> {
     }
 
     @Override
-    public Employee getById(String getEmployeeByUsername) {
+    public Employee getByField(String getEmployeeByUsername, String value) {
         //Try Connecting to DB
         try( Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
-            Employee employee = new Employee();
+
             // Select * employees from users_login table
             String sql = "SELECT * FROM users_login WHERE employee_username = ?";
+
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, getEmployeeByUsername);
-            ResultSet rs = ps.executeQuery(sql);
 
-            //traverse through employees
-            while(rs.next()) {
-                employee = convertInfoToEmployee(rs);
-            }
+            ResultSet rs = ps.executeQuery();
+
+          // traverse through employees
+            while(!rs.next()) throw new InvalidCustomerCredentialException("User not found!");
+            Employee employee = new Employee();
+            employee.setUsername(rs.getString("employee_username"));
+            employee.setRole(Role.valueOf(rs.getString("employee_role")));
+            employee.setPassword(rs.getString("employee_password"));
             return employee;
-        } catch(SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
+
+      } catch(SQLException e) {
+          e.printStackTrace();
+          return null;
+       }
+
     }
 
     @Override
@@ -90,25 +94,37 @@ public class EmployeeDAO implements CrudOperation<Employee> {
     }
 
     @Override
-    public boolean delete(int employeeId) {
-        return false;
+    public void delete(Employee employeeUsername) {
+        String sql = "DELETE FROM users_login WHERE employee_username = ?";
+
+        try(Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, employeeUsername.getUsername());
+
+            ps.executeUpdate();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Employee loginCheck(String employeeUsername, String employeePassword) {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
-            String sql = "select * from users_login where employee_username = ? and employee_password = ?";
+
+            String sql = "select * from users_login where employee_username = ? and employee_password = ?;";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
             preparedStatement.setString(1,employeeUsername);
             preparedStatement.setString(2,employeePassword);
 
             ResultSet resultSet = preparedStatement.executeQuery();
+
+            //column headers return - employee_username, employee_role, employee_password
             if (!resultSet.next()) {
-                throw new RuntimeException("Information Entered for " + employeeUsername + " was incorrect. PLease try again");
+                throw new InvalidCustomerCredentialException("Incorrect username or password.");
             }
-            Employee employee = new Employee();
-            employee.setUsername(resultSet.getString("employee_username"));
-            employee.setPassword(resultSet.getString("employee_password"));
-            return employee;
+
+            return convertInfoToEmployee(resultSet);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

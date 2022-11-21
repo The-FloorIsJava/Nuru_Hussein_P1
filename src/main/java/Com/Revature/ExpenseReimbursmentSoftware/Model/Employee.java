@@ -1,19 +1,21 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Employee {
+public class Employee  {
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role;
    // @JsonAlias(value = {"pass", "pasWORD"})
     private String password;
+
 public Employee() {
     this.role = Role.Employee;
 }
-    public Employee(String username, Role role, String password) {
+    public Employee(String username, String password) {
         this.username = username;
-        this.role = role;
         this.password = password;
+        this.role = Role.Employee;
     }
 
     public void setUsername(String username) {
@@ -40,12 +42,17 @@ public Employee() {
         return password;
     }
 
-    public boolean checkEmail(String password) {
+    public boolean checkPassword(String password) {
      if (password == null) return false;
         return (this.password !=null) && this.password.equals(password);
     }
-    public boolean checkEmployee() {
-    return (this.username !=null) & (this.role != null);
+    public boolean checkPassword(Employee employee) {
+        if (employee == null) return false;
+        if(employee.getPassword() ==null) return false;
+        return this.password != null && this.password.equals(employee.getPassword());
+    }
+    public boolean checkValidEmployee() {
+    return (this.username !=null) && (this.password != null);
     }
 
     @Override
@@ -56,4 +63,5 @@ public Employee() {
                 ", password='" + password + '\'' +
                 '}';
     }
+
 }
