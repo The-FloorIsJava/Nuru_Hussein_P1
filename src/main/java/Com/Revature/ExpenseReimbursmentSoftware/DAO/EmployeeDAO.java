@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EmployeeDAO implements CrudOperation<Employee, String> {
+public class EmployeeDAO implements CrudOperation<Employee> {
 
 
     @Override
@@ -61,7 +61,7 @@ public class EmployeeDAO implements CrudOperation<Employee, String> {
     }
 
     @Override
-    public Employee getByField(String getEmployeeByUsername, String value) {
+    public Employee getByField(String getEmployeeByUsername) {
         //Try Connecting to DB
         try( Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
@@ -112,8 +112,8 @@ public class EmployeeDAO implements CrudOperation<Employee, String> {
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
             String sql = "select * from users_login where employee_username = ? and employee_password = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1,employeeUsername);
             preparedStatement.setString(2,employeePassword);
 

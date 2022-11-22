@@ -9,7 +9,7 @@ public class DisbursementRequestProcess {
     private int RequestId;
 
     @JsonAlias(value = {"status",})
-    private RequestStatus process;
+    private String process;
 
     public DisbursementRequestProcess() {
     }
@@ -22,11 +22,11 @@ public class DisbursementRequestProcess {
         this.RequestId = RequestId;
     }
 
-    public RequestStatus getProcess() {
+    public String getProcess() {
         return process;
     }
 
-    public void setProcess(RequestStatus process) {
+    public void setProcess(String process) {
         this.process = process;
     }
 }

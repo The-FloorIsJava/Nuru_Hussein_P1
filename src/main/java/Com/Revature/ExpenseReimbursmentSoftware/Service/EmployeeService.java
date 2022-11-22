@@ -1,10 +1,7 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Service;
 
-import Com.Revature.ExpenseReimbursmentSoftware.DAO.DisbursementDAO;
 import Com.Revature.ExpenseReimbursmentSoftware.DAO.EmployeeDAO;
-import Com.Revature.ExpenseReimbursmentSoftware.Model.Disbursement;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
-import Com.Revature.ExpenseReimbursmentSoftware.Model.RequestStatus;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Role;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.LoginCredentials;
 
@@ -38,7 +35,11 @@ public class EmployeeService {
 
   }
   public Employee getEmployeeByUsername( String getObjectById) {
-        return this.employeeDAO.getByField(sessionEmployee.getUsername(),getObjectById);
+        if (sessionEmployee == null && checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+            throw  new IllegalArgumentException("Please log in and you have to be a manager to access employee by username");
+        }
+        Employee employee = new Employee();
+        return this.employeeDAO.getByField(getObjectById);
    // return  null;
   }
 
@@ -51,22 +52,22 @@ public class EmployeeService {
 
 
     // You can approve request only and only if you are a manager
-  public boolean checkIfAManagerToApprove() {
+  public boolean checkIfAManager_toProcessTicket_getEmployeeByUserName() {
         return (this.sessionEmployee ==null) || (this.sessionEmployee.getRole() != Role.Manager);
   }
 
-  public void submitRequest(Disbursement disbursement) {
-        Employee requestor = this.getSessionEmployee();
-        if (requestor == null) {
-            System.out.println("Log in to submit");
-        } else if (disbursement.getAmount() >= 0 && disbursement.getDescription() != null) {
-            disbursement.setRequestStatus(RequestStatus.Pending);
-            disbursement.setEmployeeId(disbursement.getEmployeeId());
-            DisbursementDAO disbursementDAO = new DisbursementDAO();
-            Disbursement newDisbursement = disbursementDAO.create(disbursement);
-        } else {
-            System.out.println("Every request must have amount greater than zero and description.");
-        }
-  }
+//  public void submitRequest(Disbursement disbursement) {
+//        Employee requester = this.getSessionEmployee();
+//        if (requester == null) {
+//            System.out.println("Log in to submit");
+//        } else if (disbursement.getAmount() >= 0 && disbursement.getDescription() != null) {
+//            disbursement.setRequestStatus("Pending");
+//            disbursement.setEmployeeId(disbursement.getEmployeeId());
+//            DisbursementDAO disbursementDAO = new DisbursementDAO();
+//            Disbursement newDisbursement = disbursementDAO.create(disbursement);
+//        } else {
+//            System.out.println("Every request must have amount greater than zero and description.");
+//        }
+//  }
 
 }

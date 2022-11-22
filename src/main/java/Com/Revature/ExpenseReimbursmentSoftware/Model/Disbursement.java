@@ -7,17 +7,16 @@ public class Disbursement {
     private String employeeId;
     private double amount;
     private String description;
-    private RequestStatus requestStatus;
+    private String requestStatus;
 
   public Disbursement() {
 
   }
-    public Disbursement(int id, String employeeId,  double amount, String description, RequestStatus requestStatus) {
+    public Disbursement(int id, String employeeId,  double amount, String description, String requestStatus) {
         this.id = id;
         this.employeeId = employeeId;
-        this.amount = amount;
         this.description = description;
-        this.requestStatus = RequestStatus.Pending;
+        this.requestStatus = requestStatus;
 
 
         this.amount = amount;
@@ -59,11 +58,11 @@ public class Disbursement {
         this.description = description;
     }
 
-    public RequestStatus getRequestStatus() {
+    public String getRequestStatus() {
         return requestStatus;
     }
 
-    public void setRequestStatus(RequestStatus requestStatus) {
+    public void setRequestStatus(String requestStatus) {
         this.requestStatus = requestStatus;
     }
 

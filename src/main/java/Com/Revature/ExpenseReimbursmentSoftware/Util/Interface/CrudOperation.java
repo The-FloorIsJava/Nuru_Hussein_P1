@@ -3,7 +3,7 @@ package Com.Revature.ExpenseReimbursmentSoftware.Util.Interface;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
-public interface CrudOperation<T, Q> {
+public interface CrudOperation<T> {
 
 
     //Create
@@ -13,7 +13,7 @@ public interface CrudOperation<T, Q> {
     List<T> getAll();
 
     //Access record by field
-    T getByField(String ObjectField, Q value);
+    T getByField(String ObjectField);
 
     //Update
     boolean updated(T updatedObject);

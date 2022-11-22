@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import jakarta.servlet.http.HttpServlet;
 
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class DisbursementController {
     }
 
     private void  createRequestApprovalHandler(Context context) throws JsonProcessingException {
-        if(this.employeeService.checkIfAManagerToApprove()) {
+        if(employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
             context.json("Push hard to senior level then to Manager view this page.Only managers are privileged to view this page");
             return;
         }
@@ -61,7 +60,7 @@ public class DisbursementController {
     }
 
     private void getAllPendingRequestHandler(Context context) {
-        if(this.employeeService.checkIfAManagerToApprove()) {
+        if(this.employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
 
             context.json("Only managers are privileged to view this page");
             return;

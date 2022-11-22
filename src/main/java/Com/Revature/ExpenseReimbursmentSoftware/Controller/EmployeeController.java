@@ -1,7 +1,5 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Controller;
 
-import Com.Revature.ExpenseReimbursmentSoftware.DAO.EmployeeDAO;
-import Com.Revature.ExpenseReimbursmentSoftware.Model.Disbursement;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
 import Com.Revature.ExpenseReimbursmentSoftware.Service.EmployeeService;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.LoginCredentials;
@@ -10,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 public class EmployeeController {
@@ -46,6 +43,10 @@ public class EmployeeController {
 
 
     private void getEmployeeByUsername(Context context) throws JsonProcessingException {
+        if (employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+            context.json("Only managers are privileged to get employee by username");
+            return;
+        }
      String name = context.pathParam("name");
      Employee employee;
         employee = employeeService.getEmployeeByUsername(name);

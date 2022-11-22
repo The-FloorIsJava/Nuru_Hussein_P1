@@ -3,12 +3,9 @@ package Com.Revature.ExpenseReimbursmentSoftware.Service;
 import Com.Revature.ExpenseReimbursmentSoftware.DAO.DisbursementDAO;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Disbursement;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
-import Com.Revature.ExpenseReimbursmentSoftware.Model.RequestStatus;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.DisbursementRequestProcess;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class DisbursementService {
 //  List<Disbursement> disbursementList;
@@ -43,7 +40,7 @@ public class DisbursementService {
         return this.disbursementDAO.getAllOldRequests(employee);
     }
     public DisbursementRequestProcess ProcessRequest(DisbursementRequestProcess process) {
-     return this.disbursementDAO.updateRequest(process);
+     return this.disbursementDAO.processRequest(process);
     }
 
     public List<Disbursement> getAll() {

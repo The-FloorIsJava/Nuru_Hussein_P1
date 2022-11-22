@@ -12,9 +12,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
-public class DisbursementDAO implements CrudOperation<Disbursement, String> {
+public class DisbursementDAO implements CrudOperation<Disbursement> {
 
     @Override
     public Disbursement create(Disbursement newDisbursement) {
@@ -69,7 +68,7 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
         }
     }
     @Override
-    public Disbursement getByField(String getDisbursementById, String value) {
+    public Disbursement getByField(String getDisbursementById) {
         List<Disbursement> disbursementList = new ArrayList<>();
 
         return null;
@@ -110,18 +109,16 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
     public List<Disbursement> getPendingRequests() {
         try(Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
-            // List of pending requests
+            //get List of pending requests (You don't have a privilege to see this part if your role ! a MANAGER)
             List<Disbursement> pendingRequests = new LinkedList<>();
 
-            String sql = "SELECT * FROM reimbursement_ticket join users_login" +
-                    "on users_login.employee_username = reimbursement_ticket.employee_id" +
+            String sql = "SELECT * FROM reimbursement_ticket " +
                     "WHERE reimbursement_ticket.status = 'Pending'" +
                     "ORDER BY reimbursement_ticket.id";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while(!resultSet.next()) {
+            while(resultSet.next()) {
                 pendingRequests.add(convertSQLResultToDisbursementRequest(resultSet));
             }
             return pendingRequests;
@@ -132,16 +129,16 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
         }
 
     }
-   public DisbursementRequestProcess updateRequest( DisbursementRequestProcess process) {
+   public DisbursementRequestProcess processRequest(DisbursementRequestProcess process) {
         try(Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
-            String sql = "UPDATE reimbursement_ticket set status =?::status WHERE id = ? and status = 'Pending'::status";
+            String sql = "UPDATE reimbursement_ticket set status =?::request_status WHERE id = ? and status = 'Pending'::request_status";
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, process.getProcess().toString());
+            preparedStatement.setString(1, process.getProcess());
             preparedStatement.setInt(2, process.getRequestId());
 
-            if (preparedStatement.executeUpdate() == 0) throw new SQLException("Request update failed!");
+            if (preparedStatement.executeUpdate() == 0) throw new SQLException("Request process failed!");
 
             return process;
         } catch (SQLException e) {
@@ -150,20 +147,20 @@ public class DisbursementDAO implements CrudOperation<Disbursement, String> {
         }
    }
     private Disbursement convertSQLResultToDisbursementRequest(ResultSet resultSet) throws SQLException {
-
         Disbursement request = new Disbursement();
-//        if (employee == null) {
-//            employee = new Employee();
-//                    employee.setUsername(resultSet.getString("employee_username"));
-//                    employee.setRole(Role.valueOf(resultSet.getString("employee_role")));
-//                    employee.setPassword(resultSet.getString("employee_password"));
-//        }
+        Employee employee = new Employee();
+        if (employee == null) {
+            employee = new Employee();
+                    employee.setUsername(resultSet.getString("employee_username"));
+                    employee.setRole(Role.valueOf(resultSet.getString("employee_role")));
+                    employee.setPassword(resultSet.getString("employee_password"));
+        }
 
         request.setId(resultSet.getInt("id"));
         request.setEmployeeId(resultSet.getString("employee_id"));
         request.setAmount(resultSet.getDouble("amount"));
         request.setDescription(resultSet.getString("description"));
-        request.setRequestStatus(RequestStatus.valueOf(resultSet.getString("status")));
+        request.setRequestStatus(resultSet.getString("status"));
 
         return request;
     }
