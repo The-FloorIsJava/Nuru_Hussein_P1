@@ -66,9 +66,14 @@ public class EmployeeController {
         ObjectMapper objectMapper = new ObjectMapper();
         Employee employee = objectMapper.readValue(context.body(), Employee.class);
         employeeService.createEmployee(employee);
-//      if (employee == null) {
-//            context.json("Your account is not registered!");
-//        }
+      if (employee == null) {
+            context.json("Your account is not registered!");
+          System.out.println("You have to add your username and password to register!");
+        } else if (employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+          context.json("You are not a manager");
+          System.out.println("You are not a manager");
+          return;
+      }
         context.json(employee);
         //context.result("Employee already exist");
     }

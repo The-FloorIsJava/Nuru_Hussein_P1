@@ -55,7 +55,9 @@ public class EmployeeService {
   public boolean checkIfAManager_toProcessTicket_getEmployeeByUserName() {
         return (this.sessionEmployee ==null) || (this.sessionEmployee.getRole() != Role.Manager);
   }
-
+public boolean checkIfAManagerIsOnlineToAddNewEmployee() {
+        return (this.sessionEmployee == null) || (this.sessionEmployee.getRole() == Role.Manager);
+}
 //  public void submitRequest(Disbursement disbursement) {
 //        Employee requester = this.getSessionEmployee();
 //        if (requester == null) {
