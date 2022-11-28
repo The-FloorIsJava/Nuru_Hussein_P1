@@ -19,5 +19,5 @@ public interface CrudOperation<T> {
     boolean updated(T updatedObject);
 
     //DELETE
-    void delete(T getObjectByField);
+    T delete(String getObjectByField);
 }

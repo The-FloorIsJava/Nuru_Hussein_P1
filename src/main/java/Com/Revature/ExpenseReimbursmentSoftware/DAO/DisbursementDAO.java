@@ -80,9 +80,8 @@ public class DisbursementDAO implements CrudOperation<Disbursement> {
     }
 
     @Override
-    public void delete(Disbursement employeeId) {
-
-        //return false;
+    public Disbursement delete(String employeeId) {
+        return null;
     }
 
 
@@ -146,15 +145,9 @@ public class DisbursementDAO implements CrudOperation<Disbursement> {
             return null;
         }
    }
+
     private Disbursement convertSQLResultToDisbursementRequest(ResultSet resultSet) throws SQLException {
         Disbursement request = new Disbursement();
-        Employee employee = new Employee();
-        if (employee == null) {
-            employee = new Employee();
-                    employee.setUsername(resultSet.getString("employee_username"));
-                    employee.setRole(Role.valueOf(resultSet.getString("employee_role")));
-                    employee.setPassword(resultSet.getString("employee_password"));
-        }
 
         request.setId(resultSet.getInt("id"));
         request.setEmployeeId(resultSet.getString("employee_id"));

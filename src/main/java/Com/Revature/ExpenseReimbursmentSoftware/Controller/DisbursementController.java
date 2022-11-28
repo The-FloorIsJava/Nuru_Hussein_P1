@@ -26,12 +26,12 @@ public class DisbursementController {
     public void startJavalinAPIDisbursementEndPoint(Javalin app) {
        // Javalin app = Javalin.create().start(8080);
         app.post("request/send", this::createDisbursementHandler);
-        app.get("request/previous", this::getAllOldRequestHandler);
+        app.get("request/previous", this::getAllPreviousEmployeeRequestHandler);
         app.get("request/allPending", this::getAllPendingRequestHandler);
-        app.post("request/approval", this::createRequestApprovalHandler);
+        app.post("request/approval", this::postRequestProcessHandler);
     }
 
-    private void getAllOldRequestHandler(Context context) {
+    private void getAllPreviousEmployeeRequestHandler(Context context) {
         Employee employee = this.employeeService.getSessionEmployee();
         if (employee == null) {
             context.json("Please log in to see your previous request.");
@@ -48,9 +48,9 @@ public class DisbursementController {
 
     }
 
-    private void  createRequestApprovalHandler(Context context) throws JsonProcessingException {
-        if(employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
-            context.json("Push hard to senior level then to Manager view this page.Only managers are privileged to view this page");
+    private void postRequestProcessHandler(Context context) throws JsonProcessingException {
+        if(employeeService.checkIfAManager_toProcessTicket()) {
+            context.json("Only managers are privileged to view this page");
             return;
         }
         ObjectMapper objectMapper = new ObjectMapper();
@@ -60,7 +60,7 @@ public class DisbursementController {
     }
 
     private void getAllPendingRequestHandler(Context context) {
-        if(this.employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+        if(this.employeeService.checkIfAManager_toProcessTicket()) {
 
             context.json("Only managers are privileged to view this page");
             return;
@@ -70,15 +70,16 @@ public class DisbursementController {
     }
 
     private void createDisbursementHandler(Context context) throws JsonProcessingException {
-        Employee employee = this.employeeService.getSessionEmployee();
-        if(employee == null)  {
+        Employee onlineEmployee = this.employeeService.getSessionEmployee();
+        Employee employee = new Employee();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Disbursement request = objectMapper.readValue(context.body(), Disbursement.class);
+        if(onlineEmployee == null || !onlineEmployee.getUsername().equals(request.getEmployeeId()))  {
             context.json("Please, log in to send your request!");
             return;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
-        Disbursement request = objectMapper.readValue(context.body(), Disbursement.class);
         if(this.disbursementService.sendRequest(request, employee) == null) context.json("Failed to submit request!");
-        else context.json(String.format("request number  submitted successfully!", request.getId()));
+        else context.json(String.format("%d request number  submitted successfully!", request.getId()));
     }
 
 }

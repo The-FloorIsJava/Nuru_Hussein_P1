@@ -2,20 +2,20 @@ package Com.Revature.ExpenseReimbursmentSoftware.DAO;
 
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Role;
+import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.EmployeeReassignment;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.Exceptions.InvalidCustomerCredentialException;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DatabaseConnectionFactory;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.Interface.CrudOperation;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class EmployeeDAO implements CrudOperation<Employee> {
 
-
     @Override
     public Employee create(Employee newEmployee) {
+
         try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
             String sql = "insert into users_login(employee_username, employee_role, employee_password)" + "values(?,?::user_role,?)";
@@ -25,15 +25,14 @@ public class EmployeeDAO implements CrudOperation<Employee> {
             preparedStatement.setString(3, newEmployee.getPassword());
 
             int checkInsert = preparedStatement.executeUpdate();
-            if (checkInsert == 0) {
+            if (checkInsert == 0 ) {
                 throw new RuntimeException("failed to insert employee to database");
             }
             return newEmployee;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            System.out.println("SQL Exception: " + e.getMessage());
         }
-
+           return null;
     }
 
     @Override
@@ -79,6 +78,7 @@ public class EmployeeDAO implements CrudOperation<Employee> {
             employee.setUsername(rs.getString("employee_username"));
             employee.setRole(Role.valueOf(rs.getString("employee_role")));
             employee.setPassword(rs.getString("employee_password"));
+
             return employee;
 
       } catch(SQLException e) {
@@ -90,22 +90,45 @@ public class EmployeeDAO implements CrudOperation<Employee> {
 
     @Override
     public boolean updated(Employee updatedEmployee) {
+
         return false;
     }
 
-    @Override
-    public void delete(Employee employeeUsername) {
-        String sql = "DELETE FROM users_login WHERE employee_username = ?";
+    public EmployeeReassignment reAssignEmployee(EmployeeReassignment reassignment) {
 
         try(Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
 
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, employeeUsername.getUsername());
+            String sql = "UPDATE users_login set employee_role = ?::user_role WHERE employee_username = ?";
 
-            ps.executeUpdate();
-        }catch (SQLException e) {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, reassignment.getReassignEmployee());
+            preparedStatement.setString(2, reassignment.getEmployeeUsername());
+
+            if (preparedStatement.executeUpdate() == 0) throw new SQLException("Request process failed!");
+
+            return reassignment;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Employee delete(String deleteEmployeeById) {
+
+        try (Connection connection = DatabaseConnectionFactory.getDatabaseConnectionFactory().getConnection()) {
+            String sql = "DELETE FROM users_login WHERE employee_id = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, deleteEmployeeById);
+            int checkDelete = ps.executeUpdate();
+
+            if (checkDelete == 0) {
+                throw new InvalidCustomerCredentialException("Employee id not found!");
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public Employee loginCheck(String employeeUsername, String employeePassword) {

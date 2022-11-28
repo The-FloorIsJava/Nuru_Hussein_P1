@@ -3,6 +3,7 @@ package Com.Revature.ExpenseReimbursmentSoftware.Service;
 import Com.Revature.ExpenseReimbursmentSoftware.DAO.EmployeeDAO;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Role;
+import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.EmployeeReassignment;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.LoginCredentials;
 
 import java.util.List;
@@ -10,10 +11,8 @@ import java.util.List;
 public class EmployeeService {
 
     private Employee sessionEmployee = null;
-    private EmployeeDAO employeeDAO;
-    public EmployeeService() {
+    private final EmployeeDAO employeeDAO;
 
-    }
     public EmployeeService(EmployeeDAO employeeDAO) {
         this.employeeDAO = employeeDAO;
     }
@@ -35,14 +34,20 @@ public class EmployeeService {
 
   }
   public Employee getEmployeeByUsername( String getObjectById) {
-        if (sessionEmployee == null && checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+        if (sessionEmployee == null && checkIfAManager_toProcessTicket()) {
             throw  new IllegalArgumentException("Please log in and you have to be a manager to access employee by username");
         }
-        Employee employee = new Employee();
         return this.employeeDAO.getByField(getObjectById);
-   // return  null;
   }
-
+public Employee deleteEmployeeByUsername(String deleteEmployeeById) {
+        if (sessionEmployee ==null && checkIfAManagerIsOnlineToAddNewEmployee()) {
+            throw new IllegalArgumentException("you have to be online and manager as well to delete employee");
+        }
+     return this.employeeDAO.delete(deleteEmployeeById);
+}
+    public EmployeeReassignment ProcessEmployeeReassignment(EmployeeReassignment reassignment) {
+        return this.employeeDAO.reAssignEmployee(reassignment);
+    }
   public Employee getSessionEmployee() {
         return this.sessionEmployee;
   }
@@ -52,24 +57,13 @@ public class EmployeeService {
 
 
     // You can approve request only and only if you are a manager
-  public boolean checkIfAManager_toProcessTicket_getEmployeeByUserName() {
+  public boolean checkIfAManager_toProcessTicket() {
         return (this.sessionEmployee ==null) || (this.sessionEmployee.getRole() != Role.Manager);
+
   }
 public boolean checkIfAManagerIsOnlineToAddNewEmployee() {
-        return (this.sessionEmployee == null) || (this.sessionEmployee.getRole() == Role.Manager);
+    return (this.sessionEmployee == null) || (this.sessionEmployee.getRole() == Role.Manager);
+
 }
-//  public void submitRequest(Disbursement disbursement) {
-//        Employee requester = this.getSessionEmployee();
-//        if (requester == null) {
-//            System.out.println("Log in to submit");
-//        } else if (disbursement.getAmount() >= 0 && disbursement.getDescription() != null) {
-//            disbursement.setRequestStatus("Pending");
-//            disbursement.setEmployeeId(disbursement.getEmployeeId());
-//            DisbursementDAO disbursementDAO = new DisbursementDAO();
-//            Disbursement newDisbursement = disbursementDAO.create(disbursement);
-//        } else {
-//            System.out.println("Every request must have amount greater than zero and description.");
-//        }
-//  }
 
 }

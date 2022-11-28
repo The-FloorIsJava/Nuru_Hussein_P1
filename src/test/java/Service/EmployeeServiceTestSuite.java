@@ -20,17 +20,15 @@ public class EmployeeServiceTestSuite {
     }
     @Test
     public  void test_create_employee_returnNewEmployee() {
-
-
         //AAA
 
         //Arrange
-        Employee employee = new Employee("TedFromTest", "tedPasswordFromTest", Role.Employee);
+        Employee employee = new Employee("TakeItHome", Role.Employee, "takeithome");
         //Act
        // when(mockEmployeeDAO.create(employee)).thenReturn(employee);
         Employee employee1 = sut.createEmployee(employee);
 
         //Assert
-        Assert.assertNotNull(employee1);
+       Assert.assertNotNull(employee1);
     }
 }

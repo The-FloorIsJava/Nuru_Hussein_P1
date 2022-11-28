@@ -1,12 +1,11 @@
 package Com.Revature.ExpenseReimbursmentSoftware.Util.DTO;
 
-import Com.Revature.ExpenseReimbursmentSoftware.Model.RequestStatus;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 public class DisbursementRequestProcess {
 
     @JsonAlias(value = {"id",})
-    private int RequestId;
+    private int requestId;
 
     @JsonAlias(value = {"status",})
     private String process;
@@ -15,11 +14,11 @@ public class DisbursementRequestProcess {
     }
 
     public int getRequestId() {
-        return RequestId;
+        return requestId;
     }
 
     public void setRequestId(int RequestId) {
-        this.RequestId = RequestId;
+        this.requestId = RequestId;
     }
 
     public String getProcess() {

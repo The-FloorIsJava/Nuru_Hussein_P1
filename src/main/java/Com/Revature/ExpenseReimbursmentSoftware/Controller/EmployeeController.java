@@ -2,6 +2,7 @@ package Com.Revature.ExpenseReimbursmentSoftware.Controller;
 
 import Com.Revature.ExpenseReimbursmentSoftware.Model.Employee;
 import Com.Revature.ExpenseReimbursmentSoftware.Service.EmployeeService;
+import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.EmployeeReassignment;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.LoginCredentials;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,8 +27,33 @@ public class EmployeeController {
         app.post("employee", this::createEmployeeHandler);
         app.get("employee", this::getAllEmployeesHandler);
         app.get("employee/{name}", this::getEmployeeByUsername);
+        app.delete("employee/delete/{name}", this::deleteEmployeeByUsername);
         app.post("login", this::loginInCheckHandler);
         app.delete("logout", this::logoutHandler);
+        app.post("employee/reassignment", this::postEmployeeReassignmentHandler);
+    }
+
+    private void postEmployeeReassignmentHandler(Context context) throws JsonProcessingException {
+        if(employeeService.checkIfAManager_toProcessTicket()) {
+            context.json("Only managers are privileged to reassign employee to any other role");
+            return;
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        EmployeeReassignment processReassignment = objectMapper.readValue(context.body(), EmployeeReassignment.class);
+        if (this.employeeService.ProcessEmployeeReassignment(processReassignment) == null) context.json("Reassigning employee to new role process failed!");
+        else context.json(String.format(" Employee with %s  username reassigned to new role successfully", processReassignment.getEmployeeUsername()));
+    }
+
+    private void deleteEmployeeByUsername(Context context) throws JsonProcessingException {
+        if (employeeService.checkIfAManager_toProcessTicket()) {
+            context.json("Only managers are privileged to delete employee by username");
+            return;
+        }
+        String name = context.pathParam("name");
+        Employee employee = new Employee();
+        employee = employeeService.deleteEmployeeByUsername(name);
+        //context.json(employee);
+
     }
 
     private void logoutHandler(Context context) {
@@ -43,7 +69,7 @@ public class EmployeeController {
 
 
     private void getEmployeeByUsername(Context context) throws JsonProcessingException {
-        if (employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
+        if (employeeService.checkIfAManager_toProcessTicket()) {
             context.json("Only managers are privileged to get employee by username");
             return;
         }
@@ -65,18 +91,25 @@ public class EmployeeController {
     private void createEmployeeHandler(Context context) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         Employee employee = objectMapper.readValue(context.body(), Employee.class);
-        employeeService.createEmployee(employee);
-      if (employee == null) {
-            context.json("Your account is not registered!");
-          System.out.println("You have to add your username and password to register!");
-        } else if (employeeService.checkIfAManager_toProcessTicket_getEmployeeByUserName()) {
-          context.json("You are not a manager");
-          System.out.println("You are not a manager");
+     /*   if (employee.getUsername() == null) {
+            context.json("Your account is not registered!, You violated not-null constraint");
+          System.out.println("Your account is not registered!, You violated not-null constraint");
+          return;
+        } else */
+        if (employeeService.checkIfAManager_toProcessTicket()) {
+              context.json("Only managers allowed to register new employee");
+          System.out.println("Only managers allowed to register new employee");
           return;
       }
-        context.json(employee);
-        //context.result("Employee already exist");
+        if (!employee.isAValidEmployee()){
+            context.json("Your account is not registered!, You violated not-null constraint");
+            System.out.println("Your account is not registered!, You violated not-null constraint");
+            return;
+        }
+        if (this.employeeService.createEmployee(employee)== null) context.json(String.format("%s employee username already exists!", employee.getUsername()));
+       else context.json(String.format("employee with %s  username registered successfully", employee.getUsername()));
     }
+
     private void loginInCheckHandler(Context context)  throws  JsonProcessingException{
       ObjectMapper objectMapper = new ObjectMapper();
         LoginCredentials loginCredentials = objectMapper.readValue(context.body(), LoginCredentials.class);

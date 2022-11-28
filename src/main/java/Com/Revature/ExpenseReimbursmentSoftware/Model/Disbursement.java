@@ -17,8 +17,6 @@ public class Disbursement {
         this.employeeId = employeeId;
         this.description = description;
         this.requestStatus = requestStatus;
-
-
         this.amount = amount;
     }
 
