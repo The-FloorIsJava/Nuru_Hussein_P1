@@ -6,9 +6,11 @@ import Com.Revature.ExpenseReimbursmentSoftware.Service.DisbursementService;
 import Com.Revature.ExpenseReimbursmentSoftware.Service.EmployeeService;
 import Com.Revature.ExpenseReimbursmentSoftware.Util.DTO.DisbursementRequestProcess;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 
 import java.util.List;
 
@@ -48,14 +50,19 @@ public class DisbursementController {
 
     }
 
-    private void postRequestProcessHandler(Context context) throws JsonProcessingException {
+    private void postRequestProcessHandler(Context context) throws JsonProcessingException{
+        ObjectMapper objectMapper = new ObjectMapper();
         if(employeeService.checkIfAManager_toProcessTicket()) {
+            context.status(HttpStatus.BAD_REQUEST);
             context.json("Only managers are privileged to view this page");
             return;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
+
         DisbursementRequestProcess process = objectMapper.readValue(context.body(), DisbursementRequestProcess.class);
-        if (this.disbursementService.ProcessRequest(process) == null) context.json("Request process failed!");
+        if (this.disbursementService.ProcessRequest(process) == null) {
+            context.json("Request process failed!");
+            context.status(HttpStatus.ALREADY_REPORTED);
+        }
         else context.json(String.format("%d request number processed successfully", process.getRequestId()));
     }
 
@@ -63,6 +70,7 @@ public class DisbursementController {
         if(this.employeeService.checkIfAManager_toProcessTicket()) {
 
             context.json("Only managers are privileged to view this page");
+            context.status(HttpStatus.FORBIDDEN);
             return;
         }
         List<Disbursement> allPendingRequests = disbursementService.getPendingRequests();
@@ -76,10 +84,12 @@ public class DisbursementController {
         Disbursement request = objectMapper.readValue(context.body(), Disbursement.class);
         if(onlineEmployee == null || !onlineEmployee.getUsername().equals(request.getEmployeeId()))  {
             context.json("Please, log in to send your request!");
+            context.status(HttpStatus.LOCKED);
             return;
         }
         if(this.disbursementService.sendRequest(request, employee) == null) context.json("Failed to submit request!");
         else context.json(String.format("%d request number  submitted successfully!", request.getId()));
+        context.status(HttpStatus.CREATED);
     }
 
 }
