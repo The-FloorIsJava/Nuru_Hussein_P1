@@ -16,7 +16,14 @@ public class Application {
 
         EmployeeController employeeController = new EmployeeController(employeeService);
         DisbursementController disbursementController  = new DisbursementController(disbursementService, employeeService);
-        Javalin app = Javalin.create().start(8080);
+        Javalin app = Javalin.create(config -> {
+                    config.plugins.enableCors(cors -> {
+                        cors.add(it ->{
+                            it.anyHost();
+                        });
+                    });
+                }
+        ).start(8080);
        employeeController.startJavalinAPIEmployeeEndPoint(app);
        disbursementController.startJavalinAPIDisbursementEndPoint(app);
     }
